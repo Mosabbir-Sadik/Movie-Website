@@ -8,6 +8,28 @@ let thumbnailBorderDom = document.querySelector('.carousel .thumbnail');
 let thumbnailItemsDom = thumbnailBorderDom.querySelectorAll('.item');
 let timeDom = document.querySelector('.carousel .time');
 
+// trailer playback wiring
+const trailerButtons = carouselDom.querySelectorAll('.trailer-btn');
+const trailerVideos = carouselDom.querySelectorAll('.vid-trailer');
+
+const stopAllTrailers = () => {
+    trailerVideos.forEach(video => {
+        video.pause();
+        video.currentTime = 0;
+    });
+};
+
+trailerButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const container = button.closest('.item');
+        if (!container) return;
+        const video = container.querySelector('.vid-trailer');
+        if (!video) return;
+        stopAllTrailers();
+        video.play();
+    });
+});
+
 
 thumbnailBorderDom.appendChild(thumbnailItemsDom[0]);
 let timeRunning = 2000;
@@ -23,6 +45,8 @@ let runTimeOut;
 function showSlider(type){
     let  SliderItemsDom = SliderDom.querySelectorAll('.carousel .list .item');
     let thumbnailItemsDom = document.querySelectorAll('.carousel .thumbnail .item');
+
+    stopAllTrailers();
     
     if(type === 'next'){
         SliderDom.appendChild(SliderItemsDom[0]);
