@@ -8,6 +8,11 @@ let thumbnailBorderDom = document.querySelector('.carousel .thumbnail');
 let thumbnailItemsDom = thumbnailBorderDom.querySelectorAll('.item');
 let timeDom = document.querySelector('.carousel .time');
 
+// overlay player
+const overlay = document.querySelector('.player-overlay');
+const overlayVideo = document.querySelector('.player-overlay .player-video');
+const overlayClose = document.querySelector('.player-overlay .player-close');
+
 // trailer playback wiring
 const trailerButtons = carouselDom.querySelectorAll('.trailer-btn');
 const trailerVideos = carouselDom.querySelectorAll('.vid-trailer');
@@ -17,18 +22,55 @@ const stopAllTrailers = () => {
         video.pause();
         video.currentTime = 0;
     });
+    if (overlayVideo) {
+        overlayVideo.pause();
+        overlayVideo.currentTime = 0;
+    }
+};
+
+const openOverlay = (src) => {
+    if (!overlay || !overlayVideo || !src) return;
+    stopAllTrailers();
+    overlayVideo.src = src;
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    overlayVideo.play();
+};
+
+const closeOverlay = () => {
+    if (!overlay || !overlayVideo) return;
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    overlayVideo.pause();
+    overlayVideo.currentTime = 0;
+    overlayVideo.removeAttribute('src');
+    overlayVideo.load();
 };
 
 trailerButtons.forEach(button => {
     button.addEventListener('click', () => {
         const container = button.closest('.item');
         if (!container) return;
+        const title = container.querySelector('h1');
+        const isSquid = title && title.textContent.trim().toLowerCase() === 'squid game';
+        if (!isSquid) return; // only Squid Game trailer works
         const video = container.querySelector('.vid-trailer');
-        if (!video) return;
-        stopAllTrailers();
-        video.play();
+        const src = video ? video.getAttribute('src') : null;
+        openOverlay(src);
     });
 });
+
+if (overlayClose) {
+    overlayClose.addEventListener('click', closeOverlay);
+}
+
+if (overlay) {
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            closeOverlay();
+        }
+    });
+}
 
 
 thumbnailBorderDom.appendChild(thumbnailItemsDom[0]);
